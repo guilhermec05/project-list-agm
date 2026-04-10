@@ -10,12 +10,15 @@ class TaskService(BaseService):
     def __init__(self,repo : UnitOfWorkRepositiory):
         super().__init__(repo)
 
-    
-    def create(self,project_id :int,task :TaskCreate):
-        project = self._repository.project_repo.get(project_id)
+
+    def __get_project(self, id :int):
+        project = self._repository.project_repo.get(id)
         if project == None:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND,detail={"mensagem":"tareja não existe"})
 
+    
+    def create(self,project_id :int,task :TaskCreate):
+        self.__get_project(project_id)
         if task.assignee_id != None :
             user = self._repository.user_repo.get(task.assignee_id)
 
@@ -28,3 +31,7 @@ class TaskService(BaseService):
         task_model.project_id = project_id
 
         return self._repository.task_repository.create(task_model)
+    
+    def list_by_project(self, project_id :int):
+        self.__get_project(project_id)
+        return self._repository.task_repository.get_by_project(project_id)
