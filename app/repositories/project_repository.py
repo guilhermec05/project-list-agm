@@ -1,4 +1,5 @@
-from sqlmodel import Session, select,col
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 from app.models.project import Project
 from datetime import datetime
 
@@ -13,15 +14,15 @@ class ProjectRepository:
         return project
 
     def get_all(self,offset:int =0, limit:int=100):
-        return self.__session.exec(select(Project)
+        return self.__session.execute(select(Project)
                                    .where(Project.deleted_at == None)
-                                   .offset(offset).limit(limit)).all()
+                                   .offset(offset).limit(limit)).scalars().all()
     
     def get(self, id :int):
-        return self.__session.exec(select(Project)
+        return self.__session.execute(select(Project)
                                    .where(Project.id == id  )
                                    .where( Project.deleted_at == None)
-                                ).first()
+                                ).scalar()
     
 
     def update(self, id:int ,project:Project ):       

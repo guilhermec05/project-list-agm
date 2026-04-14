@@ -1,5 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel
+from typing import Optional
+
 from datetime import datetime
 
 class StatusTask(str, Enum):
@@ -23,6 +25,8 @@ class TaskCreate(BaseModel):
 
 
 
+
+
 class TaskRead(BaseModel):
     id:int
     title:str
@@ -32,3 +36,15 @@ class TaskRead(BaseModel):
     status:StatusTask
     assignee_id:int |None = 0
     priority:PriorityTask
+
+
+
+
+    
+class TaskUpdate(BaseModel):
+    title:Optional[str] = None
+    description:Optional[str] = None
+    due_date:Optional[datetime] = None
+    status:Optional[StatusTask] = None
+    assignee_id:Optional[int]  = None
+    priority:Optional[PriorityTask] = None

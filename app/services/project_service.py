@@ -10,11 +10,16 @@ class PojectService(BaseService):
         super().__init__(repository)
     
     def create(self,project:ProjectCreate):
+   
+
         project_model = Project(**project.model_dump())
-        project_obj =  self._repository.user_repo.get(project_model.ower_id)
+
+             
+        project_obj =  self._repository.user_repo.get(project_model.owner_id)
 
         if project_obj == None:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND,detail={"mensagem":"projeto não existe"})
+       
 
         return self._repository.project_repo.create(project_model)
     

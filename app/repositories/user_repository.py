@@ -1,4 +1,5 @@
-from sqlmodel import Session, select
+from sqlalchemy import Select
+from sqlalchemy.orm import Session
 from app.models.user import User
 from typing import Sequence
 
@@ -15,7 +16,7 @@ class UserRepository:
         return user
 
     def list(self) -> Sequence[User] :
-        return self.__session.exec(select(User)).all() 
+        return self.__session.execute(Select(User)).all() 
 
     def get(self, id :int )-> (User | None):
         return self.__session.get(User, id)   
@@ -36,8 +37,8 @@ class UserRepository:
        return user_model    
 
     def get_user_by_email(self,email:str):
-        return self.__session.exec(select(User).where(User.email == email)).first()
-
+        return self.__session.execute(Select(User).where(User.email == email)).first()
+     
     def delete(self,id :int):
         user_model = self.get(id)
        
@@ -47,4 +48,4 @@ class UserRepository:
         self.__session.delete(user_model)
         self.__session.commit()    
 
-        return True
+        return True    

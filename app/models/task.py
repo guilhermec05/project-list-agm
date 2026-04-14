@@ -1,26 +1,72 @@
 from datetime import datetime
-from sqlalchemy import func
-from sqlmodel import SQLModel,  Field,Column,TIMESTAMP,text,CheckConstraint
 from typing import Optional
 
-class Task(SQLModel,table= True):
-    id: Optional[int] = Field(default=None,primary_key= True)
-    title: str
-    description:str
-    status: Optional[str] = Field(default='todo',sa_column_args=(CheckConstraint("status in  ('todo','in_progress','done')")))
-    priority: Optional[str] = Field(default='low',sa_column_args=(CheckConstraint("priority in  ('low','medium','high')")))
-    project_id :int = Field(default=None, foreign_key="project.id",ondelete='CASCADE')
-    assignee_id :Optional[int] =  Field(default=None, foreign_key="user.id",nullable=True)
-    due_date: datetime
-    created_at: Optional[datetime] = Field(sa_column=Column(
+from sqlalchemy import (
+    String,
+    Integer,
+    ForeignKey,
+    TIMESTAMP,
+    CheckConstraint,
+)
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql import func
+
+from app.db.connection import Base
+
+
+class Task(Base):
+    __tablename__ = "tasks"
+
+    __table_args__ = (
+        CheckConstraint("status IN ('todo','in_progress','done')", name="check_status"),
+        CheckConstraint("priority IN ('low','medium','high')", name="check_priority"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=False)
+
+    status: Mapped[str] = mapped_column(
+        String,
+        default="todo",
+        nullable=False
+    )
+
+    priority: Mapped[str] = mapped_column(
+        String,
+        default="low",
+        nullable=False
+    )
+
+    project_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    assignee_id: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=True
+    )
+
+    due_date: Mapped[datetime] = mapped_column(nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
-        nullable=False,
-        server_default=text("CURRENT_TIMESTAMP"),
-    ))
-    update_at : Optional[datetime] = Field(sa_column=Column(
+        server_default=func.now(),
+        nullable=False
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
+        server_default=func.now(),
         onupdate=func.now(),
-        nullable=False,
-        server_default=text("CURRENT_TIMESTAMP"),
-    ))
-    deleted_at:Optional[datetime]
+        nullable=False
+    )
+
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        TIMESTAMP(timezone=True),
+        nullable=True
+    )

@@ -1,13 +1,12 @@
-from datetime import datetime
-from sqlmodel import SQLModel,  Field,Column,TIMESTAMP,text
-from typing import Optional
+from app.db.connection import Base
+from sqlalchemy import Column,Integer,String,DateTime
+from sqlalchemy.sql import func 
 
-class User(SQLModel,table= True):
-    id: Optional[int] = Field(default=None,primary_key= True)
-    name: str
-    email:str = Field(unique=True)
-    created_at: Optional[datetime] = Field(sa_column=Column(
-        TIMESTAMP(timezone=True),
-        nullable=False,
-        server_default=text("CURRENT_TIMESTAMP"),
-    ))
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    name = Column(String, nullable=False)
+    email = Column(String, unique=True, index=True)
+    created_at= Column(DateTime, nullable=False, default=func.now())

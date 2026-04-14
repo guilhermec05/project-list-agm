@@ -30,3 +30,7 @@ class UserService(BaseService):
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail= {"mensagem":"usuário não encontrado"})  
 
         return self._repository.user_repo.get(user_id)
+    
+    def get_task(self, user_id :int):
+        self.get(user_id)
+        return self._repository.task_repository.assegneted_user(user_id)

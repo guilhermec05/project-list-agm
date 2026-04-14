@@ -1,13 +1,9 @@
 import uvicorn 
 from fastapi import FastAPI
-from sqlmodel import SQLModel
-from app.db.session import engine
 from app.routers.api import api_router
 from app.core.config import settings
 
 app = FastAPI()
-
-SQLModel.metadata.create_all(engine)
 
 app.include_router(api_router)
 

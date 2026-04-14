@@ -2,7 +2,7 @@ from http import HTTPStatus
 from fastapi import HTTPException
 from .base_servide import BaseService
 from app.repositories.unit_or_work_repository import UnitOfWorkRepositiory
-from app.schemas.task import TaskCreate
+from app.schemas.task import TaskCreate , PriorityTask, StatusTask, TaskUpdate
 from app.models.task import Task
 
 class TaskService(BaseService):
@@ -24,14 +24,42 @@ class TaskService(BaseService):
 
             if user == None :
                   raise HTTPException(status_code=HTTPStatus.NOT_FOUND,detail={"mensagem":"usuário não existe"})
-
-
-
+            
         task_model = Task(**task.model_dump())
         task_model.project_id = project_id
 
         return self._repository.task_repository.create(task_model)
     
-    def list_by_project(self, project_id :int):
+    def list_by_project(self, project_id :int, priority :PriorityTask , status :StatusTask  ):
         self.__get_project(project_id)
-        return self._repository.task_repository.get_by_project(project_id)
+        return self._repository.task_repository.get_by_project(project_id,priority,status)
+    
+    def get(self,id:int):
+        task = self._repository.task_repository.get(id)
+        
+        if not task :
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND,detail={"mensagem":"tarefa não existe"})
+        
+        return task
+    
+
+    def update(self, id:int, task_update : TaskUpdate):
+        task = self.get(id)
+  
+        update_data = task_update.model_dump(exclude_unset=True)
+
+
+        for field, value in update_data.items():
+            setattr(task, field, value)
+
+        return self._repository.task_repository.update(task)    
+        
+    def delete(self , id :int):
+
+        task  = self.get(id)
+        self._repository.task_repository.delete(task)
+        return {"mensagem":"deletado com sucesso"}
+
+        
+
+            
